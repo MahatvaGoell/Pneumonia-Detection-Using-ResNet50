@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Pneumonia Detection using a ResNet50 deep-learning model and chest X-ray images.">
+    <title>LungLens — Pneumonia Detection</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230b1f33'/%3E%3Cpath d='M31 13v38M29 20c-13-4-18 5-16 17 2 11 9 15 16 12M33 20c13-4 18 5 16 17-2 11-9 15-16 12' fill='none' stroke='%2359b7ff' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+    <style>
+      :root { --navy:#081c2c; --blue:#187dc7; --sky:#eaf5fd; --ink:#102a43; --muted:#627d98; --line:#d8e5ee; --white:#fff; }
+      * { box-sizing:border-box; }
+      html { scroll-behavior:smooth; }
+      body { margin:0; background:#f6f9fc; color:var(--ink); font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+      a { color:inherit; text-decoration:none; }
+      .wrap { max-width:1120px; margin:auto; padding:0 24px; }
+      nav { align-items:center; display:flex; justify-content:space-between; padding:22px 0; }
+      .brand { align-items:center; display:flex; font-size:1.04rem; font-weight:800; gap:10px; letter-spacing:-.02em; }
+      .mark { align-items:center; background:var(--navy); border-radius:10px; color:#72c5ff; display:flex; font-size:1.05rem; font-weight:500; height:34px; justify-content:center; width:34px; }
+      .nav-link { border:1px solid var(--line); border-radius:999px; color:var(--muted); font-size:.9rem; font-weight:700; padding:9px 14px; }
+      .hero { display:grid; gap:48px; grid-template-columns:1.04fr .96fr; padding:68px 0 86px; }
+      .eyebrow { color:var(--blue); font-size:.76rem; font-weight:800; letter-spacing:.13em; margin:0 0 14px; }
+      h1 { color:var(--navy); font-size:clamp(2.85rem,6vw,5.6rem); letter-spacing:-.07em; line-height:.94; margin:0; max-width:650px; }
+      .intro { color:var(--muted); font-size:1.1rem; line-height:1.7; margin:24px 0 28px; max-width:570px; }
+      .tag-row { display:flex; flex-wrap:wrap; gap:9px; }
+      .tag { background:#fff; border:1px solid var(--line); border-radius:999px; color:#3e5f78; font-size:.84rem; font-weight:700; padding:8px 12px; }
+      .viewer { align-self:center; background:var(--navy); border-radius:22px; box-shadow:0 28px 56px rgba(8,28,44,.2); overflow:hidden; padding:13px; transform:rotate(2deg); }
+      .viewer img { border-radius:13px; display:block; height:330px; object-fit:cover; object-position:left top; width:100%; }
+      .viewer-label { align-items:center; color:#d9edfc; display:flex; font-size:.79rem; font-weight:700; gap:8px; padding:14px 5px 2px; }
+      .pulse { background:#61d3aa; border-radius:50%; display:inline-block; height:8px; width:8px; }
+      section { padding:78px 0; }
+      .section-title { color:var(--navy); font-size:clamp(1.8rem,3vw,2.55rem); letter-spacing:-.045em; line-height:1.06; margin:0; }
+      .section-copy { color:var(--muted); line-height:1.7; margin:15px 0 0; max-width:620px; }
+      .feature-grid { display:grid; gap:16px; grid-template-columns:repeat(3,1fr); margin-top:34px; }
+      .feature { background:var(--white); border:1px solid var(--line); border-radius:18px; min-height:205px; padding:24px; }
+      .feature-num { color:var(--blue); font-size:.78rem; font-weight:800; letter-spacing:.1em; }
+      .feature h3 { color:var(--navy); font-size:1.1rem; letter-spacing:-.02em; margin:29px 0 8px; }
+      .feature p { color:var(--muted); font-size:.93rem; line-height:1.55; margin:0; }
+      .process { background:var(--sky); }
+      .steps { display:grid; gap:18px; grid-template-columns:repeat(3,1fr); margin-top:35px; }
+      .step { border-top:2px solid #9bc9eb; padding-top:16px; }
+      .step strong { color:var(--blue); font-size:.86rem; letter-spacing:.08em; }
+      .step h3 { color:var(--navy); font-size:1.12rem; margin:11px 0 7px; }
+      .step p { color:var(--muted); font-size:.92rem; line-height:1.55; margin:0; }
+      .tech { align-items:center; background:var(--navy); border-radius:22px; color:#eff8ff; display:flex; gap:32px; justify-content:space-between; margin-top:38px; padding:27px 30px; }
+      .tech p { color:#b5d2e8; line-height:1.55; margin:5px 0 0; max-width:510px; }
+      .tech-list { display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-end; }
+      .tech-list span { border:1px solid #36546a; border-radius:999px; color:#d8ecfa; font-size:.8rem; padding:7px 10px; }
+      footer { color:var(--muted); font-size:.82rem; padding:28px 0 40px; text-align:center; }
+      @media (max-width:760px) { .hero { gap:34px; grid-template-columns:1fr; padding:40px 0 60px; }.viewer { transform:none; }.viewer img { height:280px; }.feature-grid,.steps { grid-template-columns:1fr; }.tech { align-items:flex-start; flex-direction:column; gap:20px; }.tech-list { justify-content:flex-start; } section { padding:54px 0; } }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <nav aria-label="Main navigation">
+        <a class="brand" href="#top"><span class="mark">⌁</span> LungLens</a>
+        <a class="nav-link" href="#project">View project</a>
+      </nav>
+
+      <header class="hero" id="top">
+        <div>
+          <p class="eyebrow">DEEP LEARNING · MEDICAL IMAGING</p>
+          <h1>Pneumonia detection from chest X-rays.</h1>
+          <p class="intro">An AI-assisted screening project that applies transfer learning with ResNet50 to classify chest X-ray images as normal or pneumonia.</p>
+          <div class="tag-row" aria-label="Project technologies">
+            <span class="tag">ResNet50</span><span class="tag">TensorFlow</span><span class="tag">Grad-CAM</span><span class="tag">Gradio</span>
+          </div>
+        </div>
+        <div class="viewer">
+          <img src="Screenshots/App.jpg" alt="Screenshot of the pneumonia detection interface showing an uploaded chest X-ray and prediction result">
+          <div class="viewer-label"><span class="pulse"></span> AI-assisted chest X-ray screening</div>
+        </div>
+      </header>
+    </main>
+
+    <section class="process" id="project">
+      <div class="wrap">
+        <p class="eyebrow">PROJECT OVERVIEW</p>
+        <h2 class="section-title">A clear workflow for image-based screening.</h2>
+        <p class="section-copy">The project combines a ResNet50 classifier with an easy-to-use web interface, making the model’s output simple to explore and present.</p>
+        <div class="steps">
+          <article class="step"><strong>01 / INPUT</strong><h3>Upload an X-ray</h3><p>A chest X-ray image is prepared for the model at a consistent input size.</p></article>
+          <article class="step"><strong>02 / ANALYZE</strong><h3>Run ResNet50</h3><p>The trained binary classifier estimates whether pneumonia-related patterns are present.</p></article>
+          <article class="step"><strong>03 / EXPLAIN</strong><h3>Review the result</h3><p>The interface presents the predicted class and confidence, with Grad-CAM support for visual explanation.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap">
+      <p class="eyebrow">WHAT MAKES IT USEFUL</p>
+      <h2 class="section-title">Built around practical AI concepts.</h2>
+      <div class="feature-grid">
+        <article class="feature"><span class="feature-num">01</span><h3>Transfer learning</h3><p>ResNet50 provides a strong visual feature-extraction foundation for chest X-ray classification.</p></article>
+        <article class="feature"><span class="feature-num">02</span><h3>Confidence score</h3><p>Predictions are paired with a model confidence value for easier interpretation.</p></article>
+        <article class="feature"><span class="feature-num">03</span><h3>Explainable AI</h3><p>Grad-CAM can highlight image regions that most influenced the model’s decision.</p></article>
+      </div>
+      <div class="tech">
+        <div><strong>Technology stack</strong><p>Python-based computer vision and deep learning, presented through a simple interactive interface.</p></div>
+        <div class="tech-list"><span>Python</span><span>TensorFlow</span><span>Keras</span><span>OpenCV</span><span>NumPy</span><span>Gradio</span></div>
+      </div>
+    </section>
+
+    <footer class="wrap">Educational project · Not intended for medical diagnosis or clinical decision-making.</footer>
+  </body>
+</html>
